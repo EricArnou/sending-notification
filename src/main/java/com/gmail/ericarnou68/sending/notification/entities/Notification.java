@@ -1,7 +1,7 @@
 package com.gmail.ericarnou68.sending.notification.entities;
 
 import jakarta.persistence.*;
-
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -13,8 +13,8 @@ public class Notification {
     private UUID id;
 
     private String recipient;
-
     private String message;
+    private LocalDateTime localDateTime;
 
     @Enumerated(EnumType.STRING)
     private Chanel chanel;
