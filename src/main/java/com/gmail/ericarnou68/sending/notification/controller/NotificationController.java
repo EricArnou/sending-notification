@@ -1,6 +1,7 @@
 package com.gmail.ericarnou68.sending.notification.controller;
 
 import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificationDto;
+import com.gmail.ericarnou68.sending.notification.entities.dto.NotificationStatusDto;
 import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificationDto;
 import com.gmail.ericarnou68.sending.notification.service.NotificationService;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +26,12 @@ public class NotificationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getNotificationStatus(@PathVariable("id") UUID notificationId) {
+    public ResponseEntity<NotificationStatusDto> getNotificationStatus(@PathVariable("id") UUID notificationId) {
         return notificationService.getSchedulingStatus(notificationId);
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity cancelNotification(@PathVariable("id") UUID notificationId) {
+    public ResponseEntity<NotificationStatusDto> cancelNotification(@PathVariable("id") UUID notificationId) {
         return notificationService.cancelNotificationService(notificationId);
     }
 }
