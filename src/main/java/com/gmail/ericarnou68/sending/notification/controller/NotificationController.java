@@ -1,22 +1,36 @@
 package com.gmail.ericarnou68.sending.notification.controller;
 
+import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificationDto;
 import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificationDto;
+import com.gmail.ericarnou68.sending.notification.service.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/notifications")
 public class NotificationController {
 
-    @PostMapping()
-    public void scheduleNotification(@RequestBody ScheduleNotificationDto scheduleNotificationDto) {}
+    private final NotificationService notificationService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getNotificationStatus(@PathVariable("id") UUID notificationId) {
-        return ResponseEntity.ok(notificationId);
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
-    @PutMapping("/{id}")
-    public void cancelNotification(@PathVariable("id") UUID notificationId) {}
+    @PostMapping()
+    public ResponseEntity<CreatedNotificationDto> scheduleNotification(@RequestBody ScheduleNotificationDto scheduleNotificationDto, UriComponentsBuilder uriComponentsBuilder) {
+        return notificationService.scheduleNotificationService(scheduleNotificationDto, uriComponentsBuilder);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity getNotificationStatus(@PathVariable("id") UUID notificationId) {
+        return notificationService.getSchedulingStatus(notificationId);
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity cancelNotification(@PathVariable("id") UUID notificationId) {
+        return notificationService.cancelNotificationService(notificationId);
+    }
 }

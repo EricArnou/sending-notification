@@ -1,0 +1,49 @@
+package com.gmail.ericarnou68.sending.notification.service;
+
+import com.gmail.ericarnou68.sending.notification.entities.Notification;
+import com.gmail.ericarnou68.sending.notification.entities.Status;
+import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificationDto;
+import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificationDto;
+import com.gmail.ericarnou68.sending.notification.entities.dto.NotificationStatusDto;
+import com.gmail.ericarnou68.sending.notification.repository.NotificationRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.UUID;
+
+@Service
+public class NotificationService {
+    private final NotificationRepository notificationRepository;
+
+    public NotificationService(NotificationRepository notificationRepository){
+        this.notificationRepository = notificationRepository;
+    }
+
+    @Transactional
+    public ResponseEntity<CreatedNotificationDto> scheduleNotificationService(ScheduleNotificationDto scheduleNotificationDto, UriComponentsBuilder uriComponentsBuilder){
+        var notification = new Notification(scheduleNotificationDto);
+        notificationRepository.save(notification);
+        var uri = uriComponentsBuilder.path("api/v1/notifications/{id}").buildAndExpand(notification.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(new CreatedNotificationDto(notification));
+    }
+
+    public ResponseEntity getSchedulingStatus(UUID notificationId){
+        var notification = notificationRepository.findById(notificationId);
+        if(notification.isEmpty()) return ResponseEntity.notFound().build();
+        var status = new NotificationStatusDto(notification.get().getId(), notification.get().getStatus());
+
+        return ResponseEntity.ok(status);
+    }
+
+    @Transactional
+    public ResponseEntity<NotificationStatusDto> cancelNotificationService(UUID notificationId) {
+        var notification = notificationRepository.getReferenceById(notificationId);
+        notification.setStatus(Status.CANCELLED);
+        notificationRepository.save(notification);
+
+        return ResponseEntity.ok(new NotificationStatusDto(notification));
+    }
+}
