@@ -1,5 +1,6 @@
 package com.gmail.ericarnou68.sending.notification.service;
 
+import com.gmail.ericarnou68.sending.notification.entities.Chanel;
 import com.gmail.ericarnou68.sending.notification.entities.Notification;
 import com.gmail.ericarnou68.sending.notification.entities.Status;
 import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificationDto;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -45,5 +47,9 @@ public class NotificationService {
         notification.get().setStatus(Status.CANCELLED);
 
         return ResponseEntity.ok(new NotificationStatusDto(notification.get()));
+    }
+
+    public void sendNotification(LocalDateTime now) {
+        var pendingNotifications = notificationRepository.findNotificationsByStatusAndSchedulingBefore(Status.PENDING, now);
     }
 }
