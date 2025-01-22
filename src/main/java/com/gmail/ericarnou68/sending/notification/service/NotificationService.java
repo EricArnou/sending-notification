@@ -6,7 +6,7 @@ import com.gmail.ericarnou68.sending.notification.entities.Status;
 import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificationDto;
 import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificationDto;
 import com.gmail.ericarnou68.sending.notification.entities.dto.NotificationStatusDto;
-import com.gmail.ericarnou68.sending.notification.entities.dto.SendNotificationEmailChanel;
+import com.gmail.ericarnou68.sending.notification.entities.dto.SendNotificationEmailChanelDto;
 import com.gmail.ericarnou68.sending.notification.repository.NotificationRepository;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import jakarta.transaction.Transactional;
@@ -85,7 +85,7 @@ public class NotificationService {
         pendingNotifications.stream()
                 .filter(notification -> notification.getChanel() == Chanel.EMAIL)
                 .toList()
-                .forEach(notification -> sqsTemplate.send(QueueUri, new SendNotificationEmailChanel(notification)));
+                .forEach(notification -> sqsTemplate.send(QueueUri, new SendNotificationEmailChanelDto(notification)));
     }
 
     @Transactional
