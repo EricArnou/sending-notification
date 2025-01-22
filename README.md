@@ -1,4 +1,4 @@
-<h1>Sending Notification Microservice</h1>
+<h1 align = center>Sending Notification Microservice</h1>
 
 # About
 
