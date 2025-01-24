@@ -4,6 +4,7 @@ import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificati
 import com.gmail.ericarnou68.sending.notification.entities.dto.NotificationStatusDto;
 import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificationDto;
 import com.gmail.ericarnou68.sending.notification.service.NotificationService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -21,7 +22,7 @@ public class NotificationController {
     }
 
     @PostMapping()
-    public ResponseEntity<CreatedNotificationDto> scheduleNotification(@RequestBody ScheduleNotificationDto scheduleNotificationDto, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<CreatedNotificationDto> scheduleNotification(@RequestBody @Valid ScheduleNotificationDto scheduleNotificationDto, UriComponentsBuilder uriComponentsBuilder) {
         return notificationService.scheduleNotificationService(scheduleNotificationDto, uriComponentsBuilder);
     }
 

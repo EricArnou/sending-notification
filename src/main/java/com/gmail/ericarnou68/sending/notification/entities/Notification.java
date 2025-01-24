@@ -3,6 +3,8 @@ package com.gmail.ericarnou68.sending.notification.entities;
 import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificationDto;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.UUID;
 
 @Entity
@@ -57,6 +59,8 @@ public class Notification {
 
     public void setScheduling(LocalDateTime localDateTime) {
         this.scheduling = localDateTime;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        scheduling.format(formatter);
     }
 
     public Chanel getChanel() {
