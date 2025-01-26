@@ -27,7 +27,7 @@ public class NotificationService {
     private final SqsTemplate sqsTemplate;
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
-    private final String QueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-email-queue";
+    private final String emailQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-email-queue";
 
     public NotificationService(NotificationRepository notificationRepository, SqsTemplate sqsTemplate){
         this.notificationRepository = notificationRepository;
@@ -71,6 +71,10 @@ public class NotificationService {
         sendWhatsAppNotifications(pendingNotifications);
         sendSmsNotifications(pendingNotifications);
         sendPushNotifications(pendingNotifications);
+
+        pendingNotifications
+                .stream()
+                .forEach(notification -> notification.setStatus(Status.WAITING));
     }
 
     private void sendWhatsAppNotifications(List<Notification> pendingNotifications) {
@@ -89,8 +93,7 @@ public class NotificationService {
         logger.info("Sending Email Notification");
         pendingNotifications.stream()
                 .filter(notification -> notification.getChanel() == Chanel.EMAIL)
-                .toList()
-                .forEach(notification -> sqsTemplate.send(QueueUri, new SendNotificationEmailChanelDto(notification)));
+                .forEach(notification -> sqsTemplate.send(emailQueueUri, new SendNotificationEmailChanelDto(notification)));
     }
 
     @Transactional

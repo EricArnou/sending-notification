@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -20,8 +21,8 @@ public class Scheduler {
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     public void sendNotification(){
-        logger.info("Scheduler was called");
         var now = LocalDateTime.now();
+        logger.info("Scheduler was called at {}", now);
 
         notificationService.sendNotification(now);
     }
