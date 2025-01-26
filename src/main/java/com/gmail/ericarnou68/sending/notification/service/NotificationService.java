@@ -7,6 +7,8 @@ import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificati
 import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificationDto;
 import com.gmail.ericarnou68.sending.notification.entities.dto.NotificationStatusDto;
 import com.gmail.ericarnou68.sending.notification.entities.dto.SendNotificationEmailChanelDto;
+import com.gmail.ericarnou68.sending.notification.infra.exceptions.ErrorMessage;
+import com.gmail.ericarnou68.sending.notification.infra.exceptions.SendNotificationException;
 import com.gmail.ericarnou68.sending.notification.repository.NotificationRepository;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import jakarta.transaction.Transactional;
@@ -15,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,8 @@ public class NotificationService {
 
     @Transactional
     public ResponseEntity<CreatedNotificationDto> scheduleNotificationService(ScheduleNotificationDto scheduleNotificationDto, UriComponentsBuilder uriComponentsBuilder){
+        validNotification(scheduleNotificationDto);
+
         var notification = new Notification(scheduleNotificationDto);
         notificationRepository.save(notification);
         var uri = uriComponentsBuilder.path("api/v1/notifications/{id}").buildAndExpand(notification.getId()).toUri();
@@ -94,4 +97,30 @@ public class NotificationService {
         notification.setStatus(status);
         logger.info("updated status notification {}", notificationId);
     }
+
+    private static void validNotification(ScheduleNotificationDto scheduleNotificationDto) {
+        boolean validEmail;
+        boolean validPhoneNumber;
+        boolean validPushToken;
+
+        try{
+            Chanel.valueOf(scheduleNotificationDto.chanel());
+        } catch (IllegalArgumentException e) {
+            throw new SendNotificationException(ErrorMessage.CHANEL_NOT_FOUND);
+        }
+
+        validEmail = scheduleNotificationDto.recipient().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+        validPhoneNumber = scheduleNotificationDto.recipient().matches("^\\(?\\d{2}\\)?[\\s-]?\\d{4,5}[-]?\\d{4}$");
+        validPushToken = scheduleNotificationDto.recipient().matches("^[a-zA-Z0-9\\-_\\.]{16,128}$");
+
+        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.EMAIL) && !validEmail)
+            throw new SendNotificationException(ErrorMessage.INVALID_EMAIL_CHANEL);
+
+        if(((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.SMS || Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.WHATSAPP) && !validPhoneNumber))
+            throw new SendNotificationException(ErrorMessage.INVALID_PHONE_NUMBER_FOR_CHANEL);
+
+        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.PUSH) && !validPushToken)
+            throw new SendNotificationException(ErrorMessage.INVALID_PUSH_CHANEL);
+    }
 }
+

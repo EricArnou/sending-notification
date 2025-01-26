@@ -18,7 +18,7 @@ public class Notification {
     public Notification(ScheduleNotificationDto scheduleNotificationDto){
         setRecipient(scheduleNotificationDto.recipient());
         setMessage(scheduleNotificationDto.message());
-        setChanel(scheduleNotificationDto.chanel());
+        setChanel(Chanel.valueOf(scheduleNotificationDto.chanel()));
         setScheduling(scheduleNotificationDto.scheduling());
         setStatus(Status.PENDING);
     }

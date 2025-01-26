@@ -18,7 +18,7 @@ public record ScheduleNotificationDto(
         @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
         @NotNull
         LocalDateTime scheduling,
-        
+
         @NotNull
-        Chanel chanel) {
+        String chanel) {
 }
