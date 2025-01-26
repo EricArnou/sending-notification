@@ -46,20 +46,22 @@ public class NotificationService {
     }
 
     public ResponseEntity<NotificationStatusDto> getSchedulingStatus(UUID notificationId){
-        var notification = notificationRepository.findById(notificationId);
-        if(notification.isEmpty()) return ResponseEntity.notFound().build();
-        var status = new NotificationStatusDto(notification.get());
+        var notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new SendNotificationException(ErrorMessage.NOTIFICATION_NOT_FOUND));
+
+        var status = new NotificationStatusDto(notification);
 
         return ResponseEntity.ok(status);
     }
 
     @Transactional
     public ResponseEntity<NotificationStatusDto> cancelNotificationService(UUID notificationId) {
-        var notification = notificationRepository.findById(notificationId);
-        if (notification.isEmpty()) return ResponseEntity.notFound().build();
-        notification.get().setStatus(Status.CANCELLED);
+        var notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new SendNotificationException(ErrorMessage.NOTIFICATION_NOT_FOUND));
 
-        return ResponseEntity.ok(new NotificationStatusDto(notification.get()));
+        notification.setStatus(Status.CANCELLED);
+
+        return ResponseEntity.ok(new NotificationStatusDto(notification));
     }
 
     public void sendNotification(LocalDateTime now) {
