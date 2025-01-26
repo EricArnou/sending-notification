@@ -4,9 +4,9 @@ import com.gmail.ericarnou68.sending.notification.entities.Notification;
 
 import java.util.UUID;
 
-public record SendNotificationEmailChanelDto(UUID notificationId, String email, String message) {
+public record SendNotificationDto(UUID notificationId, String chanel, String message) {
 
-    public SendNotificationEmailChanelDto(Notification notification){
+    public SendNotificationDto(Notification notification){
         this(notification.getId(), notification.getRecipient(), notification.getMessage());
     }
 }

@@ -6,7 +6,7 @@ import com.gmail.ericarnou68.sending.notification.entities.Status;
 import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificationDto;
 import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificationDto;
 import com.gmail.ericarnou68.sending.notification.entities.dto.NotificationStatusDto;
-import com.gmail.ericarnou68.sending.notification.entities.dto.SendNotificationEmailChanelDto;
+import com.gmail.ericarnou68.sending.notification.entities.dto.SendNotificationDto;
 import com.gmail.ericarnou68.sending.notification.infra.exceptions.ErrorMessage;
 import com.gmail.ericarnou68.sending.notification.infra.exceptions.SendNotificationException;
 import com.gmail.ericarnou68.sending.notification.repository.NotificationRepository;
@@ -28,6 +28,10 @@ public class NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     private final String emailQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-email-queue";
+    private final String smsQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-sms-queue";
+    private final String pushQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-push-queue";
+    private final String whatsappQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-whatsapp-queue";
+
 
     public NotificationService(NotificationRepository notificationRepository, SqsTemplate sqsTemplate){
         this.notificationRepository = notificationRepository;
@@ -64,6 +68,7 @@ public class NotificationService {
         return ResponseEntity.ok(new NotificationStatusDto(notification));
     }
 
+    @Transactional
     public void sendNotification(LocalDateTime now) {
         var pendingNotifications = notificationRepository.findNotificationsByStatusAndSchedulingBefore(Status.PENDING, now);
 
@@ -72,6 +77,12 @@ public class NotificationService {
         sendSmsNotifications(pendingNotifications);
         sendPushNotifications(pendingNotifications);
 
+        changeToWaitingSentNotifications(pendingNotifications);
+
+    }
+
+    @Transactional
+    public void changeToWaitingSentNotifications(List<Notification> pendingNotifications){
         pendingNotifications
                 .stream()
                 .forEach(notification -> notification.setStatus(Status.WAITING));
@@ -79,21 +90,30 @@ public class NotificationService {
 
     private void sendWhatsAppNotifications(List<Notification> pendingNotifications) {
         logger.info("Sending WhatsApp Notification");
+        pendingNotifications.stream()
+                .filter(notification -> notification.getChanel() == Chanel.WHATSAPP)
+                .forEach(notification -> sqsTemplate.send(whatsappQueueUri, new SendNotificationDto(notification)));
     }
 
     private void sendSmsNotifications(List<Notification> pendingNotifications) {
         logger.info("Sending Sms Notification");
+        pendingNotifications.stream()
+                .filter(notification -> notification.getChanel() == Chanel.SMS)
+                .forEach(notification -> sqsTemplate.send(smsQueueUri, new SendNotificationDto(notification)));
     }
 
     private void sendPushNotifications(List<Notification> pendingNotifications) {
         logger.info("Sending Push Notification");
+        pendingNotifications.stream()
+                .filter(notification -> notification.getChanel() == Chanel.PUSH)
+                .forEach(notification -> sqsTemplate.send(pushQueueUri, new SendNotificationDto(notification)));
     }
 
     private void sendEmailNotifications(List<Notification> pendingNotifications) {
         logger.info("Sending Email Notification");
         pendingNotifications.stream()
                 .filter(notification -> notification.getChanel() == Chanel.EMAIL)
-                .forEach(notification -> sqsTemplate.send(emailQueueUri, new SendNotificationEmailChanelDto(notification)));
+                .forEach(notification -> sqsTemplate.send(emailQueueUri, new SendNotificationDto(notification)));
     }
 
     @Transactional
