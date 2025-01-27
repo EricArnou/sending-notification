@@ -8,7 +8,8 @@ public enum ErrorMessage {
     INVALID_EMAIL_CHANEL("Email is not valid"),
     INVALID_PHONE_NUMBER_FOR_CHANEL("Phone number is not valid"),
     INVALID_WHATSAPP_CHANEL("Phone number is not valid"),
-    INVALID_PUSH_CHANEL("Push token is not valid");
+    INVALID_PUSH_CHANEL("Push token is not valid"),
+    FAILED_CANCEL_NOTIFICATION("Notifications only can be canceled if now is before the send date");
 
     final String label;
 

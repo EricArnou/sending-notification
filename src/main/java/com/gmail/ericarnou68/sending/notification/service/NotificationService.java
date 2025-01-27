@@ -32,7 +32,6 @@ public class NotificationService {
     private final String pushQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-push-queue";
     private final String whatsappQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-whatsapp-queue";
 
-
     public NotificationService(NotificationRepository notificationRepository, SqsTemplate sqsTemplate){
         this.notificationRepository = notificationRepository;
         this.sqsTemplate = sqsTemplate;
@@ -63,6 +62,9 @@ public class NotificationService {
         var notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new SendNotificationException(ErrorMessage.NOTIFICATION_NOT_FOUND));
 
+        if(notification.getScheduling().isBefore(LocalDateTime.now()))
+            throw new SendNotificationException(ErrorMessage.FAILED_CANCEL_NOTIFICATION);
+
         notification.setStatus(Status.CANCELLED);
 
         return ResponseEntity.ok(new NotificationStatusDto(notification));
@@ -84,7 +86,6 @@ public class NotificationService {
     @Transactional
     public void changeToWaitingSentNotifications(List<Notification> pendingNotifications){
         pendingNotifications
-                .stream()
                 .forEach(notification -> notification.setStatus(Status.WAITING));
     }
 
