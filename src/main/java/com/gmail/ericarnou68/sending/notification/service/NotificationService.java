@@ -43,6 +43,8 @@ public class NotificationService {
 
         var notification = new Notification(scheduleNotificationDto);
         notificationRepository.save(notification);
+        logger.info("Notification {} was saved", notification.getId());
+
         var uri = uriComponentsBuilder.path("api/v1/notifications/{id}").buildAndExpand(notification.getId()).toUri();
 
         return ResponseEntity.created(uri).body(new CreatedNotificationDto(notification));
@@ -66,6 +68,7 @@ public class NotificationService {
             throw new SendNotificationException(ErrorMessage.FAILED_CANCEL_NOTIFICATION);
 
         notification.setStatus(Status.CANCELLED);
+        logger.info("Notification {} was canceled", notification.getId());
 
         return ResponseEntity.ok(new NotificationStatusDto(notification));
     }
@@ -120,7 +123,7 @@ public class NotificationService {
     public void updateStatus(UUID notificationId, Status status) {
         var notification = notificationRepository.getReferenceById(notificationId);
         notification.setStatus(status);
-        logger.info("updated status notification {}", notificationId);
+        logger.info("Updated status notification {}", notificationId);
     }
 
     private static void validNotification(ScheduleNotificationDto scheduleNotificationDto) {
@@ -131,6 +134,7 @@ public class NotificationService {
         try{
             Chanel.valueOf(scheduleNotificationDto.chanel());
         } catch (IllegalArgumentException e) {
+            logger.error("Chanel not found");
             throw new SendNotificationException(ErrorMessage.CHANEL_NOT_FOUND);
         }
 
@@ -138,14 +142,20 @@ public class NotificationService {
         validPhoneNumber = scheduleNotificationDto.recipient().matches("^\\(?\\d{2}\\)?[\\s-]?\\d{4,5}[-]?\\d{4}$");
         validPushToken = scheduleNotificationDto.recipient().matches("^[a-zA-Z0-9\\-_\\.]{16,128}$");
 
-        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.EMAIL) && !validEmail)
+        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.EMAIL) && !validEmail) {
+            logger.error("Email not valid");
             throw new SendNotificationException(ErrorMessage.INVALID_EMAIL_CHANEL);
+        }
 
-        if(((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.SMS || Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.WHATSAPP) && !validPhoneNumber))
+        if(((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.SMS || Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.WHATSAPP) && !validPhoneNumber)) {
+            logger.error("Phone number not valid");
             throw new SendNotificationException(ErrorMessage.INVALID_PHONE_NUMBER_FOR_CHANEL);
+        }
 
-        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.PUSH) && !validPushToken)
+        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.PUSH) && !validPushToken) {
+            logger.error("Push token not valid");
             throw new SendNotificationException(ErrorMessage.INVALID_PUSH_CHANEL);
+        }
     }
 }
 
