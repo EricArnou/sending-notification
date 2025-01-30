@@ -80,7 +80,6 @@ public class NotificationService {
         sendPushNotifications(pendingNotifications);
 
         changeToWaitingSentNotifications(pendingNotifications);
-
     }
 
     @Transactional
