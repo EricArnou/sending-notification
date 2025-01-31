@@ -11,6 +11,20 @@ import java.util.UUID;
 @Table(name = "tb_notifications")
 public class Notification {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    private String recipient;
+
+    private String message;
+    private LocalDateTime scheduling;
+    @Enumerated(EnumType.STRING)
+    private Chanel chanel;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     public Notification(){
 
     }
@@ -23,19 +37,13 @@ public class Notification {
         setStatus(Status.PENDING);
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    private String recipient;
-    private String message;
-    private LocalDateTime scheduling;
-
-    @Enumerated(EnumType.STRING)
-    private Chanel chanel;
-
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    public Notification(String recipient, String message, LocalDateTime scheduling, String chanel) {
+        setRecipient(recipient);
+        setMessage(message);
+        setChanel(Chanel.valueOf(chanel));
+        setScheduling(scheduling);
+        setStatus(Status.PENDING);
+    }
 
     public String getRecipient() {
         return recipient;
