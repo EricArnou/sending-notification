@@ -4,7 +4,6 @@ import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificat
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.UUID;
 
 @Entity

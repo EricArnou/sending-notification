@@ -15,5 +15,6 @@ public class TestAssistant {
     public static String EMPTY_MESSAGE = "";
     public static String NULL_MESSAGE = null;
     public static String INVALID_CHANEL = "FAX";
+    public static  LocalDateTime NOW = LocalDateTime.now();
 
 }
