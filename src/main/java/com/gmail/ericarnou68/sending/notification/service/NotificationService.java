@@ -39,7 +39,6 @@ public class NotificationService {
 
     @Transactional
     public ResponseEntity<CreatedNotificationDto> scheduleNotificationService(ScheduleNotificationDto scheduleNotificationDto, UriComponentsBuilder uriComponentsBuilder){
-        validNotification(scheduleNotificationDto);
 
         var notification = new Notification(scheduleNotificationDto);
         notificationRepository.save(notification);
@@ -124,38 +123,6 @@ public class NotificationService {
         var notification = notificationRepository.getReferenceById(notificationId);
         notification.setStatus(status);
         logger.info("Updated status notification {}", notificationId);
-    }
-
-    private static void validNotification(ScheduleNotificationDto scheduleNotificationDto) {
-        boolean validEmail;
-        boolean validPhoneNumber;
-        boolean validPushToken;
-
-        try{
-            Chanel.valueOf(scheduleNotificationDto.chanel());
-        } catch (IllegalArgumentException e) {
-            logger.error("Chanel not found");
-            throw new SendNotificationException(ErrorMessage.CHANEL_NOT_FOUND);
-        }
-
-        validEmail = scheduleNotificationDto.recipient().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-        validPhoneNumber = scheduleNotificationDto.recipient().matches("^\\(?\\d{2}\\)?[\\s-]?\\d{4,5}[-]?\\d{4}$");
-        validPushToken = scheduleNotificationDto.recipient().matches("^[a-zA-Z0-9\\-_\\.]{16,128}$");
-
-        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.EMAIL) && !validEmail) {
-            logger.error("Email not valid");
-            throw new SendNotificationException(ErrorMessage.INVALID_EMAIL_CHANEL);
-        }
-
-        if(((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.SMS || Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.WHATSAPP) && !validPhoneNumber)) {
-            logger.error("Phone number not valid");
-            throw new SendNotificationException(ErrorMessage.INVALID_PHONE_NUMBER_FOR_CHANEL);
-        }
-
-        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.PUSH) && !validPushToken) {
-            logger.error("Push token not valid");
-            throw new SendNotificationException(ErrorMessage.INVALID_PUSH_CHANEL);
-        }
     }
 }
 
