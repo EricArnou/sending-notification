@@ -3,13 +3,11 @@ package com.gmail.ericarnou68.sending.notification.entities;
 import com.gmail.ericarnou68.sending.notification.entities.dto.ScheduleNotificationDto;
 import com.gmail.ericarnou68.sending.notification.infra.exceptions.ErrorMessage;
 import com.gmail.ericarnou68.sending.notification.infra.exceptions.SendNotificationException;
-import com.gmail.ericarnou68.sending.notification.service.NotificationService;
 import jakarta.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Entity
@@ -76,8 +74,6 @@ public class Notification {
 
     public void setScheduling(LocalDateTime localDateTime) {
         this.scheduling = localDateTime;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        scheduling.format(formatter);
     }
 
     public Chanel getChanel() {
@@ -100,7 +96,7 @@ public class Notification {
         return this.id;
     }
 
-    private static void validNotification(ScheduleNotificationDto scheduleNotificationDto) {
+    public static void validNotification(ScheduleNotificationDto scheduleNotificationDto) throws SendNotificationException {
         boolean validEmail;
         boolean validPhoneNumber;
         boolean validPushToken;
