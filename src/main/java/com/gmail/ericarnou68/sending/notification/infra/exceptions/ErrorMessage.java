@@ -11,7 +11,7 @@ public enum ErrorMessage {
     INVALID_PUSH_CHANEL("Push token is not valid"),
     FAILED_CANCEL_NOTIFICATION("Notifications only can be canceled if now is before the send date");
 
-    final String label;
+    public final String label;
 
     ErrorMessage(String label) {
         this.label = label;
