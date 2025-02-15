@@ -101,6 +101,16 @@ public class Notification {
         boolean validPhoneNumber;
         boolean validPushToken;
 
+        if(scheduleNotificationDto.recipient() == null || scheduleNotificationDto.recipient().isEmpty()){
+            logger.error("Recipient is empty");
+            throw new SendNotificationException(ErrorMessage.RECIPIENT_EMPTY);
+        }
+
+        if(scheduleNotificationDto.message() == null){
+            logger.error("Message is empty");
+            throw new SendNotificationException(ErrorMessage.MESSAGE_EMPTY);
+        }
+
         try{
             Chanel.valueOf(scheduleNotificationDto.chanel());
         } catch (IllegalArgumentException e) {

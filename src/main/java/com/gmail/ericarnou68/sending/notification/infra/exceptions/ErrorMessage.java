@@ -9,6 +9,8 @@ public enum ErrorMessage {
     INVALID_PHONE_NUMBER_FOR_CHANEL("Phone number is not valid"),
     INVALID_WHATSAPP_CHANEL("Phone number is not valid"),
     INVALID_PUSH_CHANEL("Push token is not valid"),
+    RECIPIENT_EMPTY("Recipient is empty"),
+    MESSAGE_EMPTY("Message is empty"),
     FAILED_CANCEL_NOTIFICATION("Notifications only can be canceled if now is before the send date");
 
     public final String label;
