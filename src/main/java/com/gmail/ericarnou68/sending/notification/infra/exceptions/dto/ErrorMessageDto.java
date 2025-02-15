@@ -5,6 +5,6 @@ import org.springframework.validation.FieldError;
 public record ErrorMessageDto(String error) {
 
     public ErrorMessageDto(FieldError fieldError){
-        this(fieldError.getDefaultMessage());
+        this(fieldError.getField() + " " + fieldError.getDefaultMessage());
     }
 }
