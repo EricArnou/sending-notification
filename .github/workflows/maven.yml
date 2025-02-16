@@ -23,9 +23,6 @@ jobs:
     - name: Debug Java Version
       run: java -version
 
-    - name: Update system packages
-      run: sudo apt-get update && sudo apt-get upgrade -y
-
     - name: Clean up broken packages
       run: |
           sudo apt-get update

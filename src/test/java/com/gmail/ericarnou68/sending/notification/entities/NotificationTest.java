@@ -7,10 +7,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.test.context.ActiveProfiles;
 
 import static com.gmail.ericarnou68.sending.notification.TestAssistant.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 class NotificationTest {
 
     @Test
