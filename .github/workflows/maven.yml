@@ -19,7 +19,7 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-        
+
     - name: Update system packages
       run: sudo apt-get update && sudo apt-get upgrade -y
 
@@ -61,11 +61,12 @@ jobs:
     - name: Set up SQS queues
       run: |
           export SQS_ENDPOINT=http://localhost:4566
-          aws --endpoint-url=$SQS_ENDPOINT sqs create-queue --queue-name update-status
-          aws --endpoint-url=$SQS_ENDPOINT sqs create-queue --queue-name sending-email-queue
-          aws --endpoint-url=$SQS_ENDPOINT sqs create-queue --queue-name sending-sms-queue
-          aws --endpoint-url=$SQS_ENDPOINT sqs create-queue --queue-name sending-push-queue
-          aws --endpoint-url=$SQS_ENDPOINT sqs create-queue --queue-name sending-whatsapp-queue
+          export AWS_REGION=us-east-1
+          aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name update-status
+          aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name sending-email-queue
+          aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name sending-sms-queue
+          aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name sending-push-queue
+          aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name sending-whatsapp-queue
 
     - name: Build with Maven
       run: mvn clean install -P dev -DskipTests
