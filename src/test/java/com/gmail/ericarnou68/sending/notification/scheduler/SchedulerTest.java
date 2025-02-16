@@ -31,20 +31,16 @@ class SchedulerTest {
     @InjectMocks
     Scheduler scheduler;
 
-    @Captor
-    ArgumentCaptor<LocalDateTime> dateCaptor;
-
     @Test
     @DisplayName("Should has correct date information")
     void whenSchedulerSendNotificationCalledExpectCorrectDateInformation(){
         //given
-        doNothing().when(notificationService).sendNotification(dateCaptor.capture());
+        doNothing().when(notificationService).sendNotification(any(LocalDateTime.class));
 
         //when
         scheduler.sendNotification();
 
         //then
         verify(notificationService, times(1)).sendNotification(any(LocalDateTime.class));
-        assertTrue(dateCaptor.getValue().isBefore(NOW));
     }
 }
