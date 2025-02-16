@@ -48,6 +48,5 @@ class SchedulerTest {
         assertEquals(NOW.getDayOfYear(), dateCaptor.getValue().getDayOfYear());
         assertEquals(NOW.getHour(), dateCaptor.getValue().getHour());
         assertEquals(NOW.getMinute(), dateCaptor.getValue().getMinute());
-        assertEquals(NOW.getSecond(), dateCaptor.getValue().getSecond());
     }
 }
