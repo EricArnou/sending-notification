@@ -110,11 +110,24 @@ public class Notification {
             logger.error("Message is empty");
             throw new SendNotificationException(ErrorMessage.MESSAGE_EMPTY);
         }
+        
+        if(scheduleNotificationDto.scheduling() == null){
+            logger.error("Scheduling is empty");
+            throw new SendNotificationException(ErrorMessage.DATE_FORMAT_MUST_TO_BE);
+        }
+
+        if(scheduleNotificationDto.scheduling().isBefore(LocalDateTime.now())){
+            logger.error("Scheduling must be in the future");
+            throw new SendNotificationException(ErrorMessage.DATE_FORMAT_MUST_TO_BE_IN_THE_FUTURE);
+        }
 
         try{
             Chanel.valueOf(scheduleNotificationDto.chanel());
         } catch (IllegalArgumentException e) {
             logger.error("Chanel not found");
+            throw new SendNotificationException(ErrorMessage.CHANEL_NOT_FOUND);
+        } catch (NullPointerException e) {
+            logger.error("Chanel is null");
             throw new SendNotificationException(ErrorMessage.CHANEL_NOT_FOUND);
         }
 

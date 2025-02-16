@@ -11,5 +11,4 @@ public class SendingNotification {
 	public static void main(String[] args) {
 		SpringApplication.run(SendingNotification.class, args);
 	}
-
 }
