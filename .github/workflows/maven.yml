@@ -59,9 +59,13 @@ jobs:
       run: docker-compose up -d
     
     - name: Set up SQS queues
-      run: |
+    run: |
           export SQS_ENDPOINT=http://localhost:4566
           export AWS_REGION=us-east-1
+          export AWS_ACCESS_KEY_ID=fake
+          export AWS_SECRET_ACCESS_KEY=fake
+          export AWS_SESSION_TOKEN=fake
+          
           aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name update-status
           aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name sending-email-queue
           aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name sending-sms-queue
