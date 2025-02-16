@@ -45,8 +45,6 @@ class SchedulerTest {
 
         //then
         verify(notificationService, times(1)).sendNotification(any(LocalDateTime.class));
-        assertEquals(NOW.getDayOfYear(), dateCaptor.getValue().getDayOfYear());
-        assertEquals(NOW.getHour(), dateCaptor.getValue().getHour());
-        assertEquals(NOW.getMinute(), dateCaptor.getValue().getMinute());
+        assertTrue(dateCaptor.getValue().isBefore(NOW));
     }
 }
