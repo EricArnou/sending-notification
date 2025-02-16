@@ -13,7 +13,7 @@ import java.net.URI;
 @Configuration
 public class SqsConfig {
 
-    @Value("${sqs.queue.update.status.url}")
+    @Value("${aws.sqs.update.status.queue.uri}")
     private String sqsQueueUrl;
 
     @Value("${sqs.use-localstack}")
