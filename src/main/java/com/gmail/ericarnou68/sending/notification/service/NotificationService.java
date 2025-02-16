@@ -14,6 +14,7 @@ import io.awspring.cloud.sqs.operations.SqsTemplate;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -27,10 +28,17 @@ public class NotificationService {
     private final SqsTemplate sqsTemplate;
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
-    private final String emailQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-email-queue";
-    private final String smsQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-sms-queue";
-    private final String pushQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-push-queue";
-    private final String whatsappQueueUri = "https://localhost.localstack.cloud:4566/000000000000/sending-whatsapp-queue";
+    @Value("${aws.sqs.email.queue.uri}")
+    private String emailQueueUri;
+
+    @Value("${aws.sqs.sms.queue.uri}")
+    private String smsQueueUri;
+    
+    @Value("${aws.sqs.push.queue.uri}")
+    private String pushQueueUri;
+    
+    @Value("${aws.sqs.whatsapp.queue.uri}")
+    private String whatsappQueueUri;
 
     public NotificationService(NotificationRepository notificationRepository, SqsTemplate sqsTemplate){
         this.notificationRepository = notificationRepository;
