@@ -24,8 +24,13 @@ jobs:
     - name: Debug Java Version
       run: java -version
 
+    - name: Install Docker Compose v2
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose-plugin
+
     - name: Start Database and Localstack
-      run: docker-compose up -d
+      run: docker compose up -d
 
     - name: Wait for database to be ready
       run: sleep 10
@@ -66,10 +71,10 @@ jobs:
       run: java -version
 
     - name: Start Database and Localstack
-      run: docker-compose up -d
+      run: docker compose up -d
 
     - name: Wait for database to be ready
       run: sleep 10
 
     - name: Run tests
-      run: mvn clean -Pdev test
+      run: mvn clean -Ptest test
