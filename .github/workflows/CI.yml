@@ -26,8 +26,10 @@ jobs:
 
     - name: Install Docker Compose v2
       run: |
-        sudo apt-get update
-        sudo apt-get install -y docker-compose-plugin
+        mkdir -p ~/.docker/cli-plugins/
+        curl -SL https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+        chmod +x ~/.docker/cli-plugins/docker-compose
+        docker compose version
 
     - name: Start Database and Localstack
       run: docker compose up -d
