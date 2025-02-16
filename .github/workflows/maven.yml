@@ -73,16 +73,13 @@ jobs:
           aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name sending-whatsapp-queue
 
     - name: Build with Maven
-      run: mvn clean install -P dev -DskipTests
+      run: mvn clean install -Pdev -DskipTests
         
   test:
     runs-on: ubuntu-latest
     needs: build
-          
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Run tests
-        run: mvn test -P dev
+    - name: Run tests
+      run: mvn clean -Ptest test
         
