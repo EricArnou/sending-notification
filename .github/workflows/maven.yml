@@ -20,6 +20,9 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Debug Java Version
+      run: java -version
+
     - name: Update system packages
       run: sudo apt-get update && sudo apt-get upgrade -y
 
