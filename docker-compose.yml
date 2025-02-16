@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:latest
@@ -5,13 +7,12 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: notification_service
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     command: ["postgres", "-c", "listen_addresses=*"]
-    entrypoint: ["/bin/bash", "-c", "docker-entrypoint.sh postgres & sleep 5 && psql -U postgres -d postgres -c 'CREATE DATABASE notification_service_test;' && wait"]
+    entrypoint: ["/bin/bash", "-c", "docker-entrypoint.sh postgres & sleep 5 && psql -U postgres -d postgres -c 'CREATE DATABASE notification_service;' && psql -U postgres -d postgres -c 'CREATE DATABASE notification_service_test;' && wait"]
 
   localstack:
     image: localstack/localstack:latest

@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Set up JDK 21
       uses: actions/setup-java@v4
@@ -23,41 +24,12 @@ jobs:
     - name: Debug Java Version
       run: java -version
 
-    - name: Clean up broken packages
-      run: |
-          sudo apt-get update
-          sudo apt-get install -f
-
-    - name: Remove old Docker packages (if any)
-      run: |
-          sudo apt-get remove --purge docker docker-engine docker.io containerd runc
-          sudo apt-get update
-
-    - name: Set up Docker repository
-      run: |
-          sudo apt-get install -y \
-            apt-transport-https \
-            ca-certificates \
-            curl \
-            gnupg \
-            lsb-release
-          
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-
-    - name: Install Docker Compose
-      run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-
-    - name: Build DB and Localstack
-      run: docker-compose build
-          
-    - name: Start DB and Localstack
+    - name: Start Database and Localstack
       run: docker-compose up -d
-    
+
+    - name: Wait for database to be ready
+      run: sleep 10
+
     - name: Set up SQS queues
       run: |
           export SQS_ENDPOINT=http://localhost:4566
@@ -65,7 +37,7 @@ jobs:
           export AWS_ACCESS_KEY_ID=fake
           export AWS_SECRET_ACCESS_KEY=fake
           export AWS_SESSION_TOKEN=fake
-          
+
           aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name update-status
           aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name sending-email-queue
           aws --endpoint-url=$SQS_ENDPOINT --region $AWS_REGION sqs create-queue --queue-name sending-sms-queue
@@ -74,7 +46,7 @@ jobs:
 
     - name: Build with Maven
       run: mvn clean install -Pdev -DskipTests
-        
+
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -92,7 +64,12 @@ jobs:
 
     - name: Debug Java Version
       run: java -version
-    
+
+    - name: Start Database and Localstack
+      run: docker-compose up -d
+
+    - name: Wait for database to be ready
+      run: sleep 10
+
     - name: Run tests
       run: mvn clean -Ptest test
-        
