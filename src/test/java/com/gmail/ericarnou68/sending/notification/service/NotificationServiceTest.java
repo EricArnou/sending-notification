@@ -38,6 +38,9 @@ class NotificationServiceTest {
     @Mock
     private SqsTemplate sqsTemplate;
 
+    @Mock
+    private Notification notification;
+
     @InjectMocks
     private NotificationService notificationService;
 
@@ -48,20 +51,38 @@ class NotificationServiceTest {
         
         @Test
         @DisplayName("When schedule information is right expect success")
-        void whenScheduleInformationIsCorrectExpectSuccess() {
+        void whenScheduleInformationIsCorrectExpectSuccess() throws Exception {
             //given
-            ScheduleNotificationDto scheduleNotificationDto = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
-            UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance();
-            Notification notification = new Notification(scheduleNotificationDto);
+            ScheduleNotificationDto ScheduleNotificationDto = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
+            UriComponentsBuilder mockUriComponentsBuilder = UriComponentsBuilder.newInstance();
+            Notification mockNotification = mock(Notification.class);
             
-            when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
+            when(notificationRepository.save(any(Notification.class))).thenReturn(mockNotification);
+
             //when
-            ResponseEntity<CreatedNotificationDto> response = notificationService.scheduleNotificationService(scheduleNotificationDto, uriComponentsBuilder);
+            ResponseEntity<CreatedNotificationDto> response = notificationService.scheduleNotificationService(ScheduleNotificationDto, mockUriComponentsBuilder);
 
             //then
             assertNotNull(response);
             assertTrue(response.getStatusCode().isSameCodeAs(HttpStatus.CREATED));
             verify(notificationRepository, times(1)).save(any(Notification.class));
+        }
+
+        @Test
+        @DisplayName("When schedule information is right expect success")
+        void whenScheduleInformormationIsNotCorrectExpectException() {
+            //given
+            ScheduleNotificationDto scheduleNotificationDto = new ScheduleNotificationDto(PHONE_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
+            UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance();
+
+            //when
+            SendNotificationException exception = assertThrows(SendNotificationException.class,
+            () -> notificationService.scheduleNotificationService(scheduleNotificationDto, uriComponentsBuilder));
+
+
+            //then
+            assertEquals(ErrorMessage.INVALID_EMAIL_CHANEL.label, exception.getMessage());
+            verify(notificationRepository, times(0)).save(any(Notification.class));
         }
     }
 }
