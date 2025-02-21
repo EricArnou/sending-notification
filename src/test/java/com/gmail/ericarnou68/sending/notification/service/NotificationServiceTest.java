@@ -25,6 +25,11 @@ import com.gmail.ericarnou68.sending.notification.infra.exceptions.ErrorMessage;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import static com.gmail.ericarnou68.sending.notification.TestAssistant.*;
 
 
@@ -53,9 +58,9 @@ class NotificationServiceTest {
         @DisplayName("When schedule information is right expect success")
         void whenScheduleInformationIsCorrectExpectSuccess() throws Exception {
             //given
-            ScheduleNotificationDto ScheduleNotificationDto = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
-            UriComponentsBuilder mockUriComponentsBuilder = UriComponentsBuilder.newInstance();
-            Notification mockNotification = mock(Notification.class);
+            var ScheduleNotificationDto = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
+            var mockUriComponentsBuilder = UriComponentsBuilder.newInstance();
+            var mockNotification = mock(Notification.class);
             
             when(notificationRepository.save(any(Notification.class))).thenReturn(mockNotification);
 
@@ -72,8 +77,8 @@ class NotificationServiceTest {
         @DisplayName("When schedule information is right expect success")
         void whenScheduleInformormationIsNotCorrectExpectException() {
             //given
-            ScheduleNotificationDto scheduleNotificationDto = new ScheduleNotificationDto(PHONE_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
-            UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance();
+            var scheduleNotificationDto = new ScheduleNotificationDto(PHONE_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
+            var uriComponentsBuilder = UriComponentsBuilder.newInstance();
 
             //when
             SendNotificationException exception = assertThrows(SendNotificationException.class,
@@ -83,6 +88,140 @@ class NotificationServiceTest {
             //then
             assertEquals(ErrorMessage.INVALID_EMAIL_CHANEL.label, exception.getMessage());
             verify(notificationRepository, times(0)).save(any(Notification.class));
+        }
+    }
+
+    @Nested
+    class testGetSchedulingStatus{
+        
+        @Test
+        @DisplayName("When notification is found expect success")
+        void whenNotificationIsFoundExpectSuccess() {
+            //given
+            var notificationId = UUID.randomUUID();
+            var mockNotification = mock(Notification.class);
+            when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(mockNotification));
+
+            //when
+            ResponseEntity<NotificationStatusDto> response = notificationService.getSchedulingStatus(notificationId);
+
+            //then
+            assertNotNull(response);
+            assertTrue(response.getStatusCode().isSameCodeAs(HttpStatus.OK));
+            verify(notificationRepository, times(1)).findById(notificationId);
+        }
+
+        @Test
+        @DisplayName("When notification is not found expect exception")
+        void whenNotificationIsNotFoundExpectException() {
+            //given
+            var notificationId = UUID.randomUUID();
+            when(notificationRepository.findById(notificationId)).thenReturn(Optional.empty());
+
+            //when
+            SendNotificationException exception = assertThrows(SendNotificationException.class,
+            () -> notificationService.getSchedulingStatus(notificationId));
+
+            //then
+            assertEquals(ErrorMessage.NOTIFICATION_NOT_FOUND.label, exception.getMessage());
+            verify(notificationRepository, times(1)).findById(notificationId);
+        }
+    }
+
+    @Nested
+    class cancelNotificationService{
+        
+        @Test
+        @DisplayName("When notification is found and is not in the past expect success")
+        void whenNotificationIsFoundAndIsNotInThePastExpectSuccess() {
+            //given
+            var notificationId = UUID.randomUUID();
+            var mockNotification = mock(Notification.class);
+            when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(mockNotification));
+            when(mockNotification.getScheduling()).thenReturn(FUTURE_DATE);
+
+            //when
+            ResponseEntity<NotificationStatusDto> response = notificationService.cancelNotificationService(notificationId);
+
+            //then
+            assertNotNull(response);
+            assertTrue(response.getStatusCode().isSameCodeAs(HttpStatus.OK));
+            verify(notificationRepository, times(1)).findById(notificationId);
+            verify(mockNotification, times(1)).setStatus(Status.CANCELLED);
+        }
+
+        @Test
+        @DisplayName("When notification is found and is in the past expect exception")
+        void whenNotificationIsFoundAndIsInThePastExpectException() {
+            //given
+            var notificationId = UUID.randomUUID();
+            var mockNotification = mock(Notification.class);
+            when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(mockNotification));
+            when(mockNotification.getScheduling()).thenReturn(PAST_DATE);
+
+            //when
+            SendNotificationException exception = assertThrows(SendNotificationException.class,
+            () -> notificationService.cancelNotificationService(notificationId));
+
+            //then
+            assertEquals(ErrorMessage.FAILED_CANCEL_NOTIFICATION.label, exception.getMessage());
+            verify(notificationRepository, times(1)).findById(notificationId);
+            verify(mockNotification, times(0)).setStatus(Status.CANCELLED);
+        }
+
+        @Test
+        @DisplayName("When notification is not found expect exception")
+        void whenNotificationIsNotFoundExpectException() {
+            //given
+            var notificationId = UUID.randomUUID();
+            when(notificationRepository.findById(notificationId)).thenReturn(Optional.empty());
+
+            //when
+            SendNotificationException exception = assertThrows(SendNotificationException.class,
+            () -> notificationService.cancelNotificationService(notificationId));
+
+            //then
+            assertEquals(ErrorMessage.NOTIFICATION_NOT_FOUND.label, exception.getMessage());
+            verify(notificationRepository, times(1)).findById(notificationId);
+        }
+    }
+    
+    @Nested
+    class changeToWaitingSentNotifications{
+
+        @Test
+        @DisplayName("When notifications are pending expect success")
+        void whenNotificationsArePendingExpectSuccess() {
+            //given
+            var mockNotification = mock(Notification.class);
+            var pendingNotifications = List.of(mockNotification, mockNotification);
+
+            //when
+            notificationService.changeToWaitingSentNotifications(pendingNotifications);
+
+            //then
+            verify(mockNotification, times(2)).setStatus(Status.WAITING);
+        }
+    }
+
+    @Nested
+    class updateStatus{
+
+        @Test
+        @DisplayName("When notifications are pending expect success")
+        void whenNotificationsArePendingExpectSuccess() {
+            //given
+            var notificationId = UUID.randomUUID();
+            var notification = mock(Notification.class);
+
+            when(notificationRepository.getReferenceById(notificationId)).thenReturn(notification);
+        
+            //when
+            notificationService.updateStatus(notificationId, Status.FAILED);
+
+            //then
+            verify(notificationRepository, times(1)).getReferenceById(notificationId);
+            verify(notification, times(1)).setStatus(Status.FAILED);
         }
     }
 }
