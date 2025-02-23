@@ -6,9 +6,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class SendingNotification {
+public class SendNotification {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SendingNotification.class, args);
+		SpringApplication.run(SendNotification.class, args);
 	}
 }
