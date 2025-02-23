@@ -23,7 +23,7 @@ public class Notification {
     private String message;
     private LocalDateTime scheduling;
     @Enumerated(EnumType.STRING)
-    private Chanel chanel;
+    private Channel channel;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -39,15 +39,15 @@ public class Notification {
 
         setRecipient(scheduleNotificationDto.recipient());
         setMessage(scheduleNotificationDto.message());
-        setChanel(Chanel.valueOf(scheduleNotificationDto.chanel()));
+        setchannel(Channel.valueOf(scheduleNotificationDto.channel()));
         setScheduling(scheduleNotificationDto.scheduling());
         setStatus(Status.PENDING);
     }
 
-    public Notification(String recipient, String message, LocalDateTime scheduling, String chanel) {
+    public Notification(String recipient, String message, LocalDateTime scheduling, String channel) {
         setRecipient(recipient);
         setMessage(message);
-        setChanel(Chanel.valueOf(chanel));
+        setchannel(Channel.valueOf(channel));
         setScheduling(scheduling);
         setStatus(Status.PENDING);
     }
@@ -76,12 +76,12 @@ public class Notification {
         this.scheduling = localDateTime;
     }
 
-    public Chanel getChanel() {
-        return chanel;
+    public Channel getChannel() {
+        return channel;
     }
 
-    public void setChanel(Chanel chanel) {
-        this.chanel = chanel;
+    public void setchannel(Channel channel) {
+        this.channel = channel;
     }
 
     public Status getStatus() {
@@ -122,32 +122,32 @@ public class Notification {
         }
 
         try{
-            Chanel.valueOf(scheduleNotificationDto.chanel());
+            Channel.valueOf(scheduleNotificationDto.channel());
         } catch (IllegalArgumentException e) {
-            logger.error("Chanel not found");
-            throw new SendNotificationException(ErrorMessage.CHANEL_NOT_FOUND);
+            logger.error("channel not found");
+            throw new SendNotificationException(ErrorMessage.CHANNEL_NOT_FOUND);
         } catch (NullPointerException e) {
-            logger.error("Chanel is null");
-            throw new SendNotificationException(ErrorMessage.CHANEL_NOT_FOUND);
+            logger.error("channel is null");
+            throw new SendNotificationException(ErrorMessage.CHANNEL_NOT_FOUND);
         }
 
         validEmail = scheduleNotificationDto.recipient().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
         validPhoneNumber = scheduleNotificationDto.recipient().matches("^\\(?\\d{2}\\)?[\\s-]?\\d{4,5}[-]?\\d{4}$");
         validPushToken = scheduleNotificationDto.recipient().matches("^[a-zA-Z0-9\\-_\\.]{16,128}$");
 
-        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.EMAIL) && !validEmail) {
+        if((Channel.valueOf(scheduleNotificationDto.channel()) == Channel.EMAIL) && !validEmail) {
             logger.error("Email not valid");
-            throw new SendNotificationException(ErrorMessage.INVALID_EMAIL_CHANEL);
+            throw new SendNotificationException(ErrorMessage.INVALID_EMAIL_CHANNEL);
         }
 
-        if(((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.SMS || Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.WHATSAPP) && !validPhoneNumber)) {
+        if(((Channel.valueOf(scheduleNotificationDto.channel()) == Channel.SMS || Channel.valueOf(scheduleNotificationDto.channel()) == Channel.WHATSAPP) && !validPhoneNumber)) {
             logger.error("Phone number not valid");
-            throw new SendNotificationException(ErrorMessage.INVALID_PHONE_NUMBER_FOR_CHANEL);
+            throw new SendNotificationException(ErrorMessage.INVALID_PHONE_NUMBER_FOR_CHANNEL);
         }
 
-        if((Chanel.valueOf(scheduleNotificationDto.chanel()) == Chanel.PUSH) && !validPushToken) {
+        if((Channel.valueOf(scheduleNotificationDto.channel()) == Channel.PUSH) && !validPushToken) {
             logger.error("Push token not valid");
-            throw new SendNotificationException(ErrorMessage.INVALID_PUSH_CHANEL);
+            throw new SendNotificationException(ErrorMessage.INVALID_PUSH_CHANNEL);
         }
     }
 }

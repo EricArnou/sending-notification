@@ -19,7 +19,7 @@ class NotificationTest {
     @DisplayName("Should create a Notification when every arguments are alright")
     void whenEveryArgumentsIsAlrightCreateNewNotification(){
         //given
-        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
+        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.EMAIL.toString());
 
         //when
         var result = new Notification(notification);
@@ -27,7 +27,7 @@ class NotificationTest {
         //then
         assertEquals(EMAIL_RECIPIENT, result.getRecipient());
         assertEquals(MESSAGE, result.getMessage());
-        assertEquals(Chanel.EMAIL, result.getChanel());
+        assertEquals(Channel.EMAIL, result.getChannel());
         assertEquals(FUTURE_DATE, result.getScheduling());
     }
 
@@ -43,7 +43,7 @@ class NotificationTest {
         SendNotificationException exception = assertThrows(SendNotificationException.class,
                 () -> new Notification(notification));
         //then
-        assertEquals(ErrorMessage.CHANEL_NOT_FOUND.label, exception.getMessage());
+        assertEquals(ErrorMessage.CHANNEL_NOT_FOUND.label, exception.getMessage());
     }
 
     @Test
@@ -56,66 +56,66 @@ class NotificationTest {
         SendNotificationException exception = assertThrows(SendNotificationException.class,
                 () -> new Notification(notification));
         //then
-        assertEquals(ErrorMessage.CHANEL_NOT_FOUND.label, exception.getMessage());
+        assertEquals(ErrorMessage.CHANNEL_NOT_FOUND.label, exception.getMessage());
     }
 
     @Test
     @DisplayName("Should thrown exception because email recipient is not valid")
     void whenEmailRecipientIsNotValidThrowException(){
         //given
-        var notification = new ScheduleNotificationDto(PHONE_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
+        var notification = new ScheduleNotificationDto(PHONE_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.EMAIL.toString());
 
         //when
         SendNotificationException exception = assertThrows(SendNotificationException.class,
                 () -> new Notification(notification));
         //then
-        assertEquals(ErrorMessage.INVALID_EMAIL_CHANEL.label, exception.getMessage());
+        assertEquals(ErrorMessage.INVALID_EMAIL_CHANNEL.label, exception.getMessage());
     }
 
     @Test
     @DisplayName("Should thrown exception because phone recipient for whatsapp is not valid")
     void whenPhoneWhatsAppRecipientIsNotValidThrowException(){
         //given
-        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.WHATSAPP.toString());
+        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.WHATSAPP.toString());
 
         //when
         SendNotificationException exception = assertThrows(SendNotificationException.class,
                 () -> new Notification(notification));
         //then
-        assertEquals(ErrorMessage.INVALID_PHONE_NUMBER_FOR_CHANEL.label, exception.getMessage());
+        assertEquals(ErrorMessage.INVALID_PHONE_NUMBER_FOR_CHANNEL.label, exception.getMessage());
     }
 
     @Test
     @DisplayName("Should thrown exception because phone recipient for sms is not valid")
     void whenPhoneSmsRecipientIsNotValidThrowException(){
         //given
-        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.SMS.toString());
+        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.SMS.toString());
 
         //when
         SendNotificationException exception = assertThrows(SendNotificationException.class,
                 () -> new Notification(notification));
         //then
-        assertEquals(ErrorMessage.INVALID_PHONE_NUMBER_FOR_CHANEL.label, exception.getMessage());
+        assertEquals(ErrorMessage.INVALID_PHONE_NUMBER_FOR_CHANNEL.label, exception.getMessage());
     }
 
     @Test
     @DisplayName("Should thrown exception because push token is not valid")
     void whenPushTokenIsNotValidThrowException(){
         //given
-        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.PUSH.toString());
+        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.PUSH.toString());
 
         //when
         SendNotificationException exception = assertThrows(SendNotificationException.class,
                 () -> new Notification(notification));
         //then
-        assertEquals(ErrorMessage.INVALID_PUSH_CHANEL.label, exception.getMessage());
+        assertEquals(ErrorMessage.INVALID_PUSH_CHANNEL.label, exception.getMessage());
     }
 
     @Test
     @DisplayName("Should thrown exception because scheduling is in the past")
     void whenSchedulingIsInThePastThrowException(){
         //given
-        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, PAST_DATE, Chanel.EMAIL.toString());
+        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, PAST_DATE, Channel.EMAIL.toString());
 
         //when
         SendNotificationException exception = assertThrows(SendNotificationException.class,
@@ -128,7 +128,7 @@ class NotificationTest {
     @DisplayName("Should thrown exception because scheduling is null")
     void whenSchedulingIsNullThrowException(){
         //given
-        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, null, Chanel.EMAIL.toString());
+        var notification = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, null, Channel.EMAIL.toString());
 
         //when
         SendNotificationException exception = assertThrows(SendNotificationException.class,

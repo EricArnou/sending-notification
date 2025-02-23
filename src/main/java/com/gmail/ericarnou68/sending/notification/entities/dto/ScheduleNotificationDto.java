@@ -19,5 +19,5 @@ public record ScheduleNotificationDto(
         LocalDateTime scheduling,
 
         @NotNull
-        String chanel) {
+        String channel) {
 }

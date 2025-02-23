@@ -1,6 +1,6 @@
 package com.gmail.ericarnou68.sending.notification.service;
 
-import com.gmail.ericarnou68.sending.notification.entities.Chanel;
+import com.gmail.ericarnou68.sending.notification.entities.Channel;
 import com.gmail.ericarnou68.sending.notification.entities.Notification;
 import com.gmail.ericarnou68.sending.notification.entities.Status;
 import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificationDto;
@@ -58,7 +58,7 @@ class NotificationServiceTest {
         @DisplayName("When schedule information is right expect success")
         void whenScheduleInformationIsCorrectExpectSuccess() throws Exception {
             //given
-            var ScheduleNotificationDto = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
+            var ScheduleNotificationDto = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.EMAIL.toString());
             var mockUriComponentsBuilder = UriComponentsBuilder.newInstance();
             var mockNotification = mock(Notification.class);
             
@@ -77,7 +77,7 @@ class NotificationServiceTest {
         @DisplayName("When schedule information is right expect success")
         void whenScheduleInformormationIsNotCorrectExpectException() {
             //given
-            var scheduleNotificationDto = new ScheduleNotificationDto(PHONE_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
+            var scheduleNotificationDto = new ScheduleNotificationDto(PHONE_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.EMAIL.toString());
             var uriComponentsBuilder = UriComponentsBuilder.newInstance();
 
             //when
@@ -86,7 +86,7 @@ class NotificationServiceTest {
 
 
             //then
-            assertEquals(ErrorMessage.INVALID_EMAIL_CHANEL.label, exception.getMessage());
+            assertEquals(ErrorMessage.INVALID_EMAIL_CHANNEL.label, exception.getMessage());
             verify(notificationRepository, times(0)).save(any(Notification.class));
         }
     }

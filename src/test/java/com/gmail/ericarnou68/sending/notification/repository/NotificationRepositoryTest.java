@@ -1,6 +1,6 @@
 package com.gmail.ericarnou68.sending.notification.repository;
 
-import com.gmail.ericarnou68.sending.notification.entities.Chanel;
+import com.gmail.ericarnou68.sending.notification.entities.Channel;
 import com.gmail.ericarnou68.sending.notification.entities.Notification;
 import com.gmail.ericarnou68.sending.notification.entities.Status;
 import jakarta.persistence.EntityManager;
@@ -32,7 +32,7 @@ class NotificationRepositoryTest {
     @DisplayName("Should return a notification")
     void whenExistsPendingNotificationAndBeforeDateExpectNotification() {
         //given
-        var notification = new Notification(EMAIL_RECIPIENT, MESSAGE, PAST_DATE, Chanel.EMAIL.toString());
+        var notification = new Notification(EMAIL_RECIPIENT, MESSAGE, PAST_DATE, Channel.EMAIL.toString());
         entityManager.persist(notification);
 
         //when
@@ -43,7 +43,7 @@ class NotificationRepositoryTest {
         var result = notificationList.getFirst();
         assertEquals(EMAIL_RECIPIENT, result.getRecipient());
         assertEquals(MESSAGE, result.getMessage());
-        assertEquals(Chanel.EMAIL, result.getChanel());
+        assertEquals(Channel.EMAIL, result.getChannel());
         assertEquals(Status.PENDING, result.getStatus());
     }
 
@@ -51,7 +51,7 @@ class NotificationRepositoryTest {
     @DisplayName("Should not return a notification when scheduling is a future date")
     void whenExistsPendingNotificationAndAfterDateExpectNotification() {
         //given
-        var notification = new Notification(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Chanel.EMAIL.toString());
+        var notification = new Notification(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.EMAIL.toString());
         entityManager.persist(notification);
 
         //when
@@ -65,7 +65,7 @@ class NotificationRepositoryTest {
     @DisplayName("Should not return a notification when status  is not pending")
     void whenNotExistsPendingNotificationAndBeforeDateExpectNotification(){
         //given
-        var notification = new Notification(EMAIL_RECIPIENT, MESSAGE, PAST_DATE, Chanel.EMAIL.toString());
+        var notification = new Notification(EMAIL_RECIPIENT, MESSAGE, PAST_DATE, Channel.EMAIL.toString());
         notification.setStatus(Status.SUCCESS);
         entityManager.persist(notification);
 

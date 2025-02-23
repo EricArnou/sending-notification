@@ -1,6 +1,6 @@
 package com.gmail.ericarnou68.sending.notification.service;
 
-import com.gmail.ericarnou68.sending.notification.entities.Chanel;
+import com.gmail.ericarnou68.sending.notification.entities.Channel;
 import com.gmail.ericarnou68.sending.notification.entities.Notification;
 import com.gmail.ericarnou68.sending.notification.entities.Status;
 import com.gmail.ericarnou68.sending.notification.entities.dto.CreatedNotificationDto;
@@ -11,6 +11,7 @@ import com.gmail.ericarnou68.sending.notification.infra.exceptions.ErrorMessage;
 import com.gmail.ericarnou68.sending.notification.infra.exceptions.SendNotificationException;
 import com.gmail.ericarnou68.sending.notification.repository.NotificationRepository;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -40,6 +43,15 @@ public class NotificationService {
     @Value("${aws.sqs.whatsapp.queue.uri}")
     private String whatsappQueueUri;
 
+    private Map<Channel, String> queueUriMap = new HashMap<>();
+    
+    @PostConstruct
+    public void init(){
+        queueUriMap.put(Channel.EMAIL, emailQueueUri);
+        queueUriMap.put(Channel.SMS, smsQueueUri);
+        queueUriMap.put(Channel.PUSH, pushQueueUri);
+        queueUriMap.put(Channel.WHATSAPP, whatsappQueueUri);
+    }
     public NotificationService(NotificationRepository notificationRepository, SqsTemplate sqsTemplate){
         this.notificationRepository = notificationRepository;
         this.sqsTemplate = sqsTemplate;
@@ -84,46 +96,15 @@ public class NotificationService {
     public void sendNotification(LocalDateTime now) {
         var pendingNotifications = notificationRepository.findNotificationsByStatusAndSchedulingBefore(Status.PENDING, now);
 
-        sendEmailNotifications(pendingNotifications);
-        sendWhatsAppNotifications(pendingNotifications);
-        sendSmsNotifications(pendingNotifications);
-        sendPushNotifications(pendingNotifications);
-
-        changeToWaitingSentNotifications(pendingNotifications);
+        pendingNotifications.stream()
+                .peek(notification -> notification.setStatus(Status.WAITING))
+                .forEach(notification -> sqsTemplate.send(queueUriMap.get(notification.getChannel()), new SendNotificationDto(notification)));
     }
 
     @Transactional
     public void changeToWaitingSentNotifications(List<Notification> pendingNotifications){
         pendingNotifications
                 .forEach(notification -> notification.setStatus(Status.WAITING));
-    }
-
-    private void sendWhatsAppNotifications(List<Notification> pendingNotifications) {
-        logger.info("Sending WhatsApp Notification");
-        pendingNotifications.stream()
-                .filter(notification -> notification.getChanel() == Chanel.WHATSAPP)
-                .forEach(notification -> sqsTemplate.send(whatsappQueueUri, new SendNotificationDto(notification)));
-    }
-
-    private void sendSmsNotifications(List<Notification> pendingNotifications) {
-        logger.info("Sending Sms Notification");
-        pendingNotifications.stream()
-                .filter(notification -> notification.getChanel() == Chanel.SMS)
-                .forEach(notification -> sqsTemplate.send(smsQueueUri, new SendNotificationDto(notification)));
-    }
-
-    private void sendPushNotifications(List<Notification> pendingNotifications) {
-        logger.info("Sending Push Notification");
-        pendingNotifications.stream()
-                .filter(notification -> notification.getChanel() == Chanel.PUSH)
-                .forEach(notification -> sqsTemplate.send(pushQueueUri, new SendNotificationDto(notification)));
-    }
-
-    private void sendEmailNotifications(List<Notification> pendingNotifications) {
-        logger.info("Sending Email Notification");
-        pendingNotifications.stream()
-                .filter(notification -> notification.getChanel() == Chanel.EMAIL)
-                .forEach(notification -> sqsTemplate.send(emailQueueUri, new SendNotificationDto(notification)));
     }
 
     @Transactional
