@@ -16,9 +16,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -58,28 +56,26 @@ public class NotificationService {
     }
 
     @Transactional
-    public ResponseEntity<CreatedNotificationDto> scheduleNotificationService(ScheduleNotificationDto scheduleNotificationDto, UriComponentsBuilder uriComponentsBuilder){
+    public CreatedNotificationDto scheduleNotificationService(ScheduleNotificationDto scheduleNotificationDto){
 
         var notification = new Notification(scheduleNotificationDto);
         notificationRepository.save(notification);
         logger.info("Notification {} was saved", notification.getId());
 
-        var uri = uriComponentsBuilder.path("api/v1/notifications/{id}").buildAndExpand(notification.getId()).toUri();
-
-        return ResponseEntity.created(uri).body(new CreatedNotificationDto(notification));
+        return new CreatedNotificationDto(notification);
     }
 
-    public ResponseEntity<NotificationStatusDto> getSchedulingStatus(UUID notificationId){
+    public NotificationStatusDto getSchedulingStatus(UUID notificationId){
         var notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new SendNotificationException(ErrorMessage.NOTIFICATION_NOT_FOUND));
 
         var status = new NotificationStatusDto(notification);
 
-        return ResponseEntity.ok(status);
+        return status;
     }
 
     @Transactional
-    public ResponseEntity<NotificationStatusDto> cancelNotificationService(UUID notificationId) {
+    public NotificationStatusDto cancelNotificationService(UUID notificationId) {
         var notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new SendNotificationException(ErrorMessage.NOTIFICATION_NOT_FOUND));
 
@@ -89,7 +85,7 @@ public class NotificationService {
         notification.setStatus(Status.CANCELLED);
         logger.info("Notification {} was canceled", notification.getId());
 
-        return ResponseEntity.ok(new NotificationStatusDto(notification));
+        return new NotificationStatusDto(notification);
     }
 
     @Transactional

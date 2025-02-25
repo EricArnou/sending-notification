@@ -17,10 +17,7 @@ import org.junit.jupiter.api.Nested;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.util.UriComponentsBuilder;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -58,17 +55,15 @@ class NotificationServiceTest {
         void whenScheduleInformationIsCorrectExpectSuccess() throws Exception {
             //given
             var ScheduleNotificationDto = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.EMAIL.toString());
-            var mockUriComponentsBuilder = UriComponentsBuilder.newInstance();
             var mockNotification = mock(Notification.class);
             
             when(notificationRepository.save(any(Notification.class))).thenReturn(mockNotification);
 
             //when
-            ResponseEntity<CreatedNotificationDto> response = notificationService.scheduleNotificationService(ScheduleNotificationDto, mockUriComponentsBuilder);
+            CreatedNotificationDto response = notificationService.scheduleNotificationService(ScheduleNotificationDto);
 
             //then
             assertNotNull(response);
-            assertTrue(response.getStatusCode().isSameCodeAs(HttpStatus.CREATED));
             verify(notificationRepository, times(1)).save(any(Notification.class));
         }
 
@@ -77,11 +72,10 @@ class NotificationServiceTest {
         void whenScheduleInformormationIsNotCorrectExpectException() {
             //given
             var scheduleNotificationDto = new ScheduleNotificationDto(PHONE_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.EMAIL.toString());
-            var uriComponentsBuilder = UriComponentsBuilder.newInstance();
 
             //when
             SendNotificationException exception = assertThrows(SendNotificationException.class,
-            () -> notificationService.scheduleNotificationService(scheduleNotificationDto, uriComponentsBuilder));
+            () -> notificationService.scheduleNotificationService(scheduleNotificationDto));
 
 
             //then
@@ -102,11 +96,10 @@ class NotificationServiceTest {
             when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(mockNotification));
 
             //when
-            ResponseEntity<NotificationStatusDto> response = notificationService.getSchedulingStatus(notificationId);
+            NotificationStatusDto response = notificationService.getSchedulingStatus(notificationId);
 
             //then
             assertNotNull(response);
-            assertTrue(response.getStatusCode().isSameCodeAs(HttpStatus.OK));
             verify(notificationRepository, times(1)).findById(notificationId);
         }
 
@@ -140,11 +133,10 @@ class NotificationServiceTest {
             when(mockNotification.getScheduling()).thenReturn(FUTURE_DATE);
 
             //when
-            ResponseEntity<NotificationStatusDto> response = notificationService.cancelNotificationService(notificationId);
+            NotificationStatusDto response = notificationService.cancelNotificationService(notificationId);
 
             //then
             assertNotNull(response);
-            assertTrue(response.getStatusCode().isSameCodeAs(HttpStatus.OK));
             verify(notificationRepository, times(1)).findById(notificationId);
             verify(mockNotification, times(1)).setStatus(Status.CANCELLED);
         }

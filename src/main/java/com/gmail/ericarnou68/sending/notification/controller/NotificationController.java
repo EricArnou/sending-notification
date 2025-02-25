@@ -23,16 +23,23 @@ public class NotificationController {
 
     @PostMapping()
     public ResponseEntity<CreatedNotificationDto> scheduleNotification(@RequestBody @Valid ScheduleNotificationDto scheduleNotificationDto, UriComponentsBuilder uriComponentsBuilder) {
-        return notificationService.scheduleNotificationService(scheduleNotificationDto, uriComponentsBuilder);
+        var createdNotificationDto = notificationService.scheduleNotificationService(scheduleNotificationDto);
+        
+        var uri = uriComponentsBuilder.path("api/v1/notifications/{id}").buildAndExpand(createdNotificationDto.notificationId()).toUri();
+        return ResponseEntity.created(uri).body(createdNotificationDto);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<NotificationStatusDto> getNotificationStatus(@PathVariable("id") UUID notificationId) {
-        return notificationService.getSchedulingStatus(notificationId);
+        var notificationStatusDto = notificationService.getSchedulingStatus(notificationId);
+
+        return ResponseEntity.ok(notificationStatusDto);
     }
 
     @PutMapping("/{id}/cancel")
     public ResponseEntity<NotificationStatusDto> cancelNotification(@PathVariable("id") UUID notificationId) {
-        return notificationService.cancelNotificationService(notificationId);
+
+        var notificationStatusDto = notificationService.cancelNotificationService(notificationId);
+        return ResponseEntity.ok(notificationStatusDto);
     }
 }
