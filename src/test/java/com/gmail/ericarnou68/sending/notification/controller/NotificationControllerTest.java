@@ -41,7 +41,6 @@ public class NotificationControllerTest {
         var scheduleNotificationDto = new ScheduleNotificationDto(EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.EMAIL.toString());
         var createdNotificationDto = new CreatedNotificationDto(null, EMAIL_RECIPIENT, MESSAGE, FUTURE_DATE, Channel.EMAIL, Status.PENDING ); // Simulação de retorno válido
 
-        // Simulando o comportamento do service mockado
         when(notificationService.scheduleNotificationService(any(ScheduleNotificationDto.class)))
             .thenReturn(createdNotificationDto);
 
